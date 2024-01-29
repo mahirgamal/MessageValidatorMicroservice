@@ -1,0 +1,10 @@
+{
+  "azureFunctions.javaBuildTool": "maven",
+  "azureFunctions.deploySubpath": "target/azure-functions/MessageValidatorMicroservice-1706499485722",
+  "azureFunctions.projectLanguage": "Java",
+  "azureFunctions.projectRuntime": "~4",
+  "debug.internalConsoleOptions": "neverOpen",
+  "azureFunctions.preDeployTask": "package (functions)",
+  "maven.view": "flat",
+  "java.configuration.updateBuildConfiguration": "interactive"
+}
