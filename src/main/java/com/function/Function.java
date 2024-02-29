@@ -11,42 +11,15 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 
 import java.util.Optional;
 
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
-
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Set;
+import com.domain.MessageValidator;
 
 /**
  * Azure Functions with HTTP Trigger.
  */
 public class Function {
-    private String schema;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private JsonSchema jschema;
 
     public Function() {
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream("LEI/eventCore.json");
-             BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = br.readLine()) != null) {
-                sb.append(line).append(System.lineSeparator());
-            }
-            schema = sb.toString();
-            JsonSchemaFactory schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909);
-            jschema = schemaFactory.getSchema(schema);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
     }
 
     /**
@@ -70,17 +43,17 @@ public class Function {
         }
 
         try {
-            JsonNode json = objectMapper.readTree(query);
-            Set<ValidationMessage> validationResult = jschema.validate(json);
+            
+            MessageValidator messageValidator=new MessageValidator(query);
 
             StringBuilder errorMessageBuilder = new StringBuilder();
-            if (validationResult.isEmpty()) {
+            if (messageValidator.getValidationResult().isEmpty()) {
                 errorMessageBuilder.append("valid");
                 return request.createResponseBuilder(HttpStatus.OK)
                         .body(errorMessageBuilder.toString())
                         .build();
             } else {
-                validationResult.forEach(vm -> errorMessageBuilder.append(vm.getMessage()).append("\r"));
+                messageValidator.getValidationResult().forEach(vm -> errorMessageBuilder.append(vm.getMessage()).append("\r"));
                 return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
                         .body(errorMessageBuilder.toString())
                         .build();
